@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini YouTube</title>
+    <style>
+        :root {
+            --bg-color: #0f0f0f;
+            --card-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --accent-color: #ff0000;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        header {
+            height: 60px;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+
+        .logo {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Контейнер для плеера (появляется при выборе видео) */
+        #player-section {
+            display: none;
+            background-color: #000;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .player-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 95%;
+        }
+
+        #main-video {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .video-info {
+            padding: 15px 0;
+        }
+
+        .video-info h2 { margin: 0; font-size: 1.4rem; }
+        .video-info p { color: #aaa; margin: 10px 0; }
+
+        /* Сетка видео */
+        .container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background-color: transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .video-card:hover {
+            transform: scale(1.02);
+        }
+
+        .thumbnail-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #333;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-card-info {
+            padding: 10px 5px;
+        }
+
+        .video-card-info h4 {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-card-info p {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .empty-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 100px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo">
+            <span style="margin-right:5px">▶</span> YouTube Mini
+        </a>
+    </header>
+
+    <!-- Секция плеера (скрыта по умолчанию) -->
+    <section id="player-section">
+        <div class="player-container">
+            <video id="main-video" controls autoplay></video>
+            <div class="video-info">
+                <h2 id="current-title">Название видео</h2>
+                <p>@cpp_hacker • 2024</p>
+                <hr style="border: 0; border-top: 1px solid #333;">
+                <p id="current-desc">Описание видео появится здесь.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="container">
+        <h3 id="grid-title">Последние загруженные видео</h3>
+        <div id="video-grid" class="video-grid">
+            <!-- Сюда JS вставит карточки -->
+        </div>
+    </main>
+
+    <script>
+        const playerSection = document.getElementById('player-section');
+        const mainVideo = document.getElementById('main-video');
+        const currentTitle = document.getElementById('current-title');
+        const currentDesc = document.getElementById('current-desc');
+        const videoGrid = document.getElementById('video-grid');
+
+        // Функция для загрузки списка видео
+        async function fetchVideos() {
+            try {
+                const response = await fetch('/api/videos');
+                const videos = await response.json();
+                renderGrid(videos);
+            } catch (err) {
+                console.error("Ошибка загрузки:", err);
+            }
+        }
+
+        // Отрисовка сетки
+        function renderGrid(videos) {
+            if (videos.length === 0) {
+                videoGrid.innerHTML = '<div class="empty-msg">Видео пока нет. Загрузите их через C++ клиент!</div>';
+                return;
+            }
+
+            videoGrid.innerHTML = '';
+            videos.forEach(vid => {
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.onclick = () => selectVideo(vid);
+
+                card.innerHTML = `
+                    <div class="thumbnail-wrapper">
+                        <video src="${vid.url}#t=0.1" preload="metadata" muted></video>
+                    </div>
+                    <div class="video-card-info">
+                        <h4>${vid.caption || 'Без названия'}</h4>
+                        <p>@cpp_hacker</p>
+                    </div>
+                `;
+                videoGrid.appendChild(card);
+            });
+        }
+
+        // Выбор видео для просмотра
+        function selectVideo(video) {
+            // Показываем плеер
+            playerSection.style.display = 'block';
+            
+            // Устанавливаем данные
+            mainVideo.src = video.url;
+            currentTitle.innerText = video.caption || 'Без названия';
+            currentDesc.innerText = `Уникальный ID: ${video.id}. Это видео было успешно обработано паттерном Фасад и загружено на сервер.`;
+
+            // Прокручиваем к плееру
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            mainVideo.play();
+        }
+
+        // Запуск при загрузке
+        fetchVideos();
+    </script>
+</body>
+</html>
