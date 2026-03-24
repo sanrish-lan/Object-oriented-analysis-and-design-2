@@ -23,7 +23,7 @@
 
 ### 3. Диаграмма классов для архитектуры приложения с применением паттерна
 
-
+!['Диаграмма классов'](https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab02/ooap_lab2.drawio.png)
 
 ---
 
