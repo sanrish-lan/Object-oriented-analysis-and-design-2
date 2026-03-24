@@ -60,4 +60,4 @@ ok = facade.ProcessAndUpload(path, duration, caption);
 
 Паттерн Фасад идеально подошел для изоляции сложного, многоступенчатого конвейера обработки медиа от пользовательского интерфейса. 
 
-![Video]([https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab02/0325.mp4](https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab02/0325.gif))
+![Video](https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab02/0325.mp4](https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab02/0325.gif)
