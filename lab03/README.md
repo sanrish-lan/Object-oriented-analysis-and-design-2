@@ -98,7 +98,7 @@ python:
 ```
 
 ### 3. Диаграмма классов
-![Диаграмма классов](docs/diag_class.png)
+![Диаграмма классов](https://github.com/sanrish-lan/Object-oriented-analysis-and-design-2/blob/main/lab03/ooap3lab.drawio.png)
 
 ### 4. Вывод
 
